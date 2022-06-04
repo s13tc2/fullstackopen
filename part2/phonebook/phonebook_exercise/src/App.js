@@ -1,37 +1,127 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 // import Filter from './components/Filter'
+import personService from './services/persons'
 
 
 const App = () => {
-  const [persons, setPersons] = useState([]) 
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
+  const [message, setMessage] = useState(null)
 
+  // useEffect(() => {
+  //   console.log('effect')
+  //   axios
+  //     .get('http://localhost:3001/persons')
+  //     .then(response => {
+  //       console.log('promise fulfilled')
+  //       setPersons(response.data)
+  //     })
+  // }, [])
+  // console.log('render', persons.length, 'notes')
+
+  // useEffect(() => {
+  //   personService
+  //     .getAll()
+  //     .then(response => {
+  //       setPersons(response.data)
+  //     })
+  // }, [])
+
+  // 2.16: Phonebook step8
   useEffect(() => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
   }, [])
-  console.log('render', persons.length, 'notes')
-
 
   const addName = (event) => {
     event.preventDefault()
     // console.log('button clicked', event.target)
     const nameObject = {
-      name: newName, 
-      number: newNumber
+      name: newName,
+      number: newNumber,
+      id: persons.length + 1,
     }
+
+    const person = persons.filter((person) => person.name === newName)
+    const personToAdd = person[0]
+    const updatedPerson = { ...personToAdd, number: newNumber }
+
+    if (person.length !== 0) {
+      if (window.confirm(`${personToAdd.name} is already added to the phonebook, replace the old number with the new one?`)) {
+        personService
+          .update(updatedPerson.id, updatedPerson).then(returnedPerson => {
+            console.log(`${returnedPerson.name} sucessfully updated`)
+
+            setPersons(persons.map(p => p.id !== personToAdd.id ? p : returnedPerson))
+            setNewName('')
+            setNewNumber('')
+            setMessage(
+              `${updatedPerson.name} was successfully updated`
+            )
+          })
+          .catch((error) => {
+            console.log(error)
+            setPersons(persons.filter(p => p.id !== updatedPerson.id))
+            setNewName('')
+            setNewNumber('')
+            setMessage(`[ERROR] ${updatedPerson.name} was already deleted from server`)
+          })
+      }
+    } else {
+      // 2.16: Phonebook step8
+      personService
+      .create(nameObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
+      })
+
+
+    }
+
+    // 2.15: Phonebook step7
+    // adding entry to localhost:3001/persons
+    // axios
+    //   .post('http://localhost:3001/persons', nameObject)
+    //   .then(response => {
+    //     console.log(response)
+    //     setPersons(persons.concat(nameObject))
+    //     setNewName('')
+    //     setNewNumber('')
+    //   })
+
+    // personService
+    //   .create(nameObject)
+    //   .then(response => {
+    //     setPersons(persons.concat(response.data))
+    //     setNewName('')
+    //     setNewNumber('')
+    //   })
+
+    // // 2.16: Phonebook step8
+    // personService
+    //   .create(nameObject)
+    //   .then(returnedPerson => {
+    //     setPersons(persons.concat(returnedPerson))
+    //     setNewName('')
+    //     setNewNumber('')
+    //   })
+
+
+
     // console.log(nameObject.name, nameObject.number)
-    setPersons(persons.concat(nameObject))
-    setNewName('')
-    setNewNumber('')
+
+    // setPersons(persons.concat(nameObject))
+    // setNewName('')
+    // setNewNumber('')
+
 
     // console.log(persons.map(person => person.name).includes(newName))
 
@@ -68,7 +158,15 @@ const App = () => {
 
 
   const Header = ({ text }) => <h2>{text}</h2>
-  const Name = ({ name, number }) => <p>{name} {number}</p>
+  // const Name = ({ name, number }) => <p>{name} {number}</p>
+  const Name = ({ name, number, toggleDelete }) => {
+    return (
+      <li>
+        <p>{name} {number}</p><button onClick={toggleDelete}>delete</button>
+      </li>
+    )
+  }
+
   const Button = () => {
     return (
       <div>
@@ -82,6 +180,7 @@ const App = () => {
       <div>name: <input value={value} onChange={onChange} /></div>
     )
   }
+
   const NumberInput = ({ value, onChange }) => {
     return (
       <div>number: <input value={value} onChange={onChange} /></div>
@@ -89,13 +188,12 @@ const App = () => {
   }
 
   const Filter = ({ value, onChange }) => {
-      return (
-        <div>
-          filter show with <input value={value} onChange={onChange}/>
-        </div>
-      )
+    return (
+      <div>
+        filter show with <input value={value} onChange={onChange} />
+      </div>
+    )
   }
-
 
   const PersonForm = ({ onSubmit, name, number }) => {
     return (
@@ -107,28 +205,43 @@ const App = () => {
     )
   }
 
+  const toggleDelete = (id) => {
+    // console.log('delete ' + name)
+    const filteredPerson = persons.filter(person => person.id === id)
+    const personName = filteredPerson[0].name
+    const personId = filteredPerson[0].id
 
-
+    if (window.confirm(`Delete ${personName}`)) {
+      personService
+        .remove(id)
+      console.log(`${personName} successfully deleted`)
+      setMessage(
+        `${personName} was successfully deleted`
+      )
+      setPersons(persons.filter(person => person.id !== personId))
+    }
+  }
+  
   return (
     <div>
       <Header text='Phonebook' />
-      <div>filter shown with 
-        <input value={newFilter} onChange={handleFilterChange}/>
+      <div>filter shown with
+        <input value={newFilter} onChange={handleFilterChange} />
       </div>
       {/* <Filter value={newFilter} onChange={handleFilterChange}/> */}
       <Header text='add a new' />
       <form onSubmit={addName}>
-        <div>name: <input value={newName} onChange={handleNameChange}/></div>
-        <div>number: <input value={newNumber} onChange={handleNumberChange}/></div>
+        <div>name: <input value={newName} onChange={handleNameChange} /></div>
+        <div>number: <input value={newNumber} onChange={handleNumberChange} /></div>
         <div><button type="submit">add</button></div>
       </form>
       {/* <PersonForm onSubmit={addName} /> */}
       <Header text='Number' />
 
-      {persons.map(person => 
-        <Name name={person.name} number={person.number}/>
+      {persons.map(person =>
+        <Name name={person.name} number={person.number} toggleDelete={() => toggleDelete(person.id)} />
       )}
-      
+
     </div>
   )
 }
