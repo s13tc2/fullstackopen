@@ -45,7 +45,7 @@ const App = () => {
     const nameObject = {
       name: newName,
       number: newNumber,
-      id: persons.length + 1,
+      // id: persons.length + 1,
     }
 
     const person = persons.filter((person) => person.name === newName)
@@ -72,18 +72,7 @@ const App = () => {
             setNewNumber('')
             setMessage(`[ERROR] ${updatedPerson.name} was already deleted from server`)
           })
-      }
-    } else {
-      // 2.16: Phonebook step8
-      personService
-      .create(nameObject)
-      .then(returnedPerson => {
-        setPersons(persons.concat(returnedPerson))
-        setNewName('')
-        setNewNumber('')
-      })
-
-
+      } 
     }
 
     // 2.15: Phonebook step7
@@ -187,23 +176,23 @@ const App = () => {
     )
   }
 
-  const Filter = ({ value, onChange }) => {
-    return (
-      <div>
-        filter show with <input value={value} onChange={onChange} />
-      </div>
-    )
-  }
+  // const Filter = ({ value, onChange }) => {
+  //   return (
+  //     <div>
+  //       filter show with <input value={value} onChange={onChange} />
+  //     </div>
+  //   )
+  // }
 
-  const PersonForm = ({ onSubmit, name, number }) => {
-    return (
-      <form onSubmit={onSubmit}>
-        <NameInput value={name} onChange={handleNameChange} />
-        <NumberInput value={number} onChange={handleNumberChange} />
-        <Button />
-      </form>
-    )
-  }
+  // const PersonForm = ({ onSubmit, name, number }) => {
+  //   return (
+  //     <form onSubmit={onSubmit}>
+  //       <NameInput value={name} onChange={handleNameChange} />
+  //       <NumberInput value={number} onChange={handleNumberChange} />
+  //       <Button />
+  //     </form>
+  //   )
+  // }
 
   const toggleDelete = (id) => {
     // console.log('delete ' + name)
@@ -221,27 +210,27 @@ const App = () => {
       setPersons(persons.filter(person => person.id !== personId))
     }
   }
-  
+
   return (
     <div>
       <Header text='Phonebook' />
+
       <div>filter shown with
         <input value={newFilter} onChange={handleFilterChange} />
       </div>
-      {/* <Filter value={newFilter} onChange={handleFilterChange}/> */}
+
       <Header text='add a new' />
+
       <form onSubmit={addName}>
         <div>name: <input value={newName} onChange={handleNameChange} /></div>
         <div>number: <input value={newNumber} onChange={handleNumberChange} /></div>
         <div><button type="submit">add</button></div>
       </form>
-      {/* <PersonForm onSubmit={addName} /> */}
-      <Header text='Number' />
 
+      <Header text='Number' />
       {persons.map(person =>
         <Name name={person.name} number={person.number} toggleDelete={() => toggleDelete(person.id)} />
       )}
-
     </div>
   )
 }
