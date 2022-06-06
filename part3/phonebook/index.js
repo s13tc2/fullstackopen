@@ -1,8 +1,20 @@
 const http = require('http')
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
+
 
 app.use(express.json())
+app.use(morgan((tokens, req, res) => {
+  return [
+    tokens.method(req, res),
+    tokens.url(req, res),
+    tokens.status(req, res),
+    tokens.res(req, res, 'content-length'), '-',
+    tokens['response-time'](req, res), 'ms',
+    JSON.stringify(req.body)
+  ].join(' ')
+}))
 
 let persons = [
   {
@@ -87,11 +99,11 @@ app.post('/api/persons', (request, response) => {
   }
 
   console.log(persons.filter(p => p.name === body.name))
-  if (persons.filter(p => p.name === body.name) && persons.filter(p => p.number === body.number)) {
-    return response.status(400).json({
-      error: 'name or number must be unique'
-    })
-  }
+  // if (persons.filter(p => p.name === body.name) && persons.filter(p => p.number === body.number)) {
+  //   return response.status(400).json({
+  //     error: 'name or number must be unique'
+  //   })
+  // }
 
   const person = {
     id: generateId(),
