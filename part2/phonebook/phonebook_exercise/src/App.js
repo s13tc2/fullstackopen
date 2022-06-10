@@ -41,39 +41,61 @@ const App = () => {
 
   const addName = (event) => {
     event.preventDefault()
-    // console.log('button clicked', event.target)
-    const nameObject = {
-      name: newName,
-      number: newNumber,
-      // id: persons.length + 1,
-    }
+    console.log('button clicked', event.target)
 
-    const person = persons.filter((person) => person.name === newName)
+    const person = persons.filter((p) => p.name === newName)
     const personToAdd = person[0]
     const updatedPerson = { ...personToAdd, number: newNumber }
+    console.log(person.length)
 
     if (person.length !== 0) {
       if (window.confirm(`${personToAdd.name} is already added to the phonebook, replace the old number with the new one?`)) {
-        personService
-          .update(updatedPerson.id, updatedPerson).then(returnedPerson => {
-            console.log(`${returnedPerson.name} sucessfully updated`)
+        personService.update(updatedPerson.id, updatedPerson).then(returnedPerson => {
+          console.log(`${returnedPerson.name} successfully updated`)
 
-            setPersons(persons.map(p => p.id !== personToAdd.id ? p : returnedPerson))
-            setNewName('')
-            setNewNumber('')
-            setMessage(
-              `${updatedPerson.name} was successfully updated`
-            )
-          })
-          .catch((error) => {
-            console.log(error)
-            setPersons(persons.filter(p => p.id !== updatedPerson.id))
-            setNewName('')
-            setNewNumber('')
-            setMessage(`[ERROR] ${updatedPerson.name} was already deleted from server`)
-          })
+          setPersons(persons.map(p => p.id !== personToAdd.id ? p : returnedPerson))
+          setNewName('')
+          setNewNumber('')
+          setMessage(
+            `${updatedPerson.name} was successfully updated`
+          )
+        })
+        .catch((error) => {
+          console.log(error)
+          setPersons(persons.filter(p => p.id !== updatedPerson.id))
+          setNewName('')
+          setNewNumber('')
+          setMessage(`[ERROR] ${updatedPerson.name} was already deleted from server`)
+        })
       } 
     }
+    
+    if (person.length === 0) {
+      const nameObject = {
+        name: newName,
+        number: newNumber,
+      }
+  
+      personService
+        .create(nameObject)
+        .then(returnedPerson => {
+          console.log(returnedPerson)
+          setPersons(persons.concat(returnedPerson))
+          setNewName('')
+          setNewNumber('')
+          setMessage(
+            `${newName} was successfully added`
+          )
+        }) 
+        .catch(error => {
+          setMessage(
+            `[ERROR] ${error.response.data.error}`
+          )
+          console.log(error.response.data)
+        })
+  
+    }
+
 
     // 2.15: Phonebook step7
     // adding entry to localhost:3001/persons
@@ -98,6 +120,7 @@ const App = () => {
     // personService
     //   .create(nameObject)
     //   .then(returnedPerson => {
+    //     console.log(returnedPerson)
     //     setPersons(persons.concat(returnedPerson))
     //     setNewName('')
     //     setNewNumber('')
