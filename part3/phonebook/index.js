@@ -81,6 +81,14 @@ app.get('/info', (request, response) => {
 //   }
 // })
 
+app.delete('/api/persons:/:id', (request, response, next) => {
+  Person.findByIdAndRemove(request.params.id) 
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
+})
+
 app.get('/api/persons/:id', (request, response) => {
   Person.findById(request.params.id).then(person => {
     if (person) {
@@ -96,19 +104,35 @@ app.get('/api/persons/:id', (request, response) => {
   // })
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  persons = persons.filter(p => p.id !== id)
+// app.delete('/api/persons/:id', (request, response) => {
+//   const id = Number(request.params.id)
+//   persons = persons.filter(p => p.id !== id)
 
-  response.status(204).end()
+//   response.status(204).end()
+// })
+
+
+// const generateId = () => {
+//   const maxId = persons.length > 0
+//     ? Math.max(...persons.map(n => n.id))
+//     : 0
+//   return maxId + 1
+// }
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
+
+  const person = new Person({
+    name: String,
+    number: String,
+  })
+
+  Person.findByIdAndUpdate(request.params.id, note, {new: true})
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error))
 })
-
-const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(n => n.id))
-    : 0
-  return maxId + 1
-}
 
 
 // app.post('/api/persons', (request, response) => {
