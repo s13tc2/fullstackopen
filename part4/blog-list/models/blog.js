@@ -1,14 +1,14 @@
 const mongoose = require('mongoose')
-const url = process.env.MONGODB_URI
-console.log('connecting to', url)
+// const url = process.env.MONGODB_URI
+// console.log('connecting to', url)
 
-mongoose.connect(url)
-  .then(result => {
-    console.log('connected to MongoDB')
-  })
-  .catch((error) => {
-    console.log('error connecting to MongoDB:', error.message)
-  })
+// mongoose.connect(url)
+//   .then(result => {
+//     console.log('connected to MongoDB')
+//   })
+//   .catch((error) => {
+//     console.log('error connecting to MongoDB:', error.message)
+//   })
 
 const blogSchema = mongoose.Schema({
   title: {
@@ -29,6 +29,10 @@ const blogSchema = mongoose.Schema({
   likes: {
     type: Number
   },
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User'
+  }
 })
 
 

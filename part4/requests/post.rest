@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1sdXVra2FpIiwiaWQiOiI2MmE3NWFmYjFlNTM3OTk1NDFmM2Q1YjkiLCJpYXQiOjE2NTUxNDU0ODZ9.dWA-JD3hRQLNNop8V-EH5YFtG0WgITXdBkZdzRuY7aI
+
+{
+    "title": "Blog 3",
+    "author": "Imaginary User",
+    "url": "www.starbucks.com",
+    "likes": 52
+}
