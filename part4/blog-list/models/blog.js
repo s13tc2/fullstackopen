@@ -10,24 +10,27 @@ mongoose.connect(url)
     console.log('error connecting to MongoDB:', error.message)
   })
 
-const blogSchema = new mongoose.Schema({
+const blogSchema = mongoose.Schema({
   title: {
     type: String,
+    minlength: 3,
     required: true,
+    unique: true
   },
   author: {
     type: String,
-    required: true,
+    required: true
   },
   url: {
     type: String,
-    required: true,
+    minlength: 3,
+    required: true
   },
   likes: {
-    type: Number,
-    required: true,
-  }
+    type: Number
+  },
 })
+
 
 blogSchema.set('toJSON', {
   transform: (document, returnedObject) => {
